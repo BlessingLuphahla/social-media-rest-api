@@ -80,7 +80,7 @@ const UserSchema = new mongoose.Schema(
       default: [],
     },
   },
-  { timestamps: true ,collection: "social"}
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("User", UserSchema);
