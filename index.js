@@ -1,13 +1,15 @@
 const express = require('express');
-const app = express();
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const helmet = require('helmet');
+
 const morgan = require('morgan');
 const UserRouter = require('./routes/users');
 const AuthRouter = require('./routes/auth');
 const PostRouter = require('./routes/posts');
 
+
+const app = express();
 dotenv.config();
 
 mongoose.connect(process.env.MONGO_URL, {
@@ -22,6 +24,8 @@ mongoose.connect(process.env.MONGO_URL, {
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("common"));
+
+// setting up APIs
 
 app.use('/api/users', UserRouter);
 app.use('/api/auth', AuthRouter);
