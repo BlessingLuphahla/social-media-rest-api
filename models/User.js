@@ -55,14 +55,6 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "Single",
     },
-    followersCount: {
-      type: Number,
-      default: 0,
-    },
-    followingCount: {
-      type: Number,
-      default: 0,
-    },
     posts: {
       type: Array,
       default: [],
