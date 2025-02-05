@@ -10,8 +10,6 @@ const cors = require("cors");
 
 dotenv.config();
 
-console.log(process.env);
-
 const PORT = process.env.PORT;
 
 const app = express();
