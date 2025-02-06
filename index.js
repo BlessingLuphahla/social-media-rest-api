@@ -7,12 +7,24 @@ const UserRouter = require("./routes/users");
 const AuthRouter = require("./routes/auth");
 const PostRouter = require("./routes/posts");
 const cors = require("cors");
+const path = require("path");
+const multer = require("multer");
+
 
 dotenv.config();
+
+
 
 const PORT = process.env.PORT;
 
 const app = express();
+
+
+// Allow all domains (or restrict to specific domains as needed)
+app.use(cors());
+
+// Serve static files (images, CSS, JS) from the 'public' folder
+app.use('/public', express.static( 'public'));
 
 mongoose.connect(process.env.MONGO_URL, {
 },
@@ -31,10 +43,27 @@ mongoose.connection.on("connected", () => {
 });
 
 // middleweares
-app.use(cors());
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("common"));
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/images");
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage });
+app.post("/api/upload", upload.single("file"), (req, res) => {
+  try {
+    return res.status(200).json("File uploaded successfully");
+  } catch (err) {
+    console.error(err);
+  }
+})
 
 // setting up APIs
 
