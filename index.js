@@ -14,6 +14,14 @@ const PORT = process.env.PORT;
 
 const app = express();
 
+mongoose.connect(process.env.MONGO_URL, {
+},
+).then(() => {
+    console.log('Connected to MongoDB');
+}).catch((err) => {
+    console.error('Error connecting to MongoDB:', err);
+});
+
 mongoose.connection.on("disconnected", () => {
   console.log("MongoDB disconnected!");
 });
@@ -40,10 +48,4 @@ app.listen(PORT, () => {
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
-});
-
-process.on("SIGINT", async () => {
-    await mongoose.connection.close();
-    console.log("MongoDB connection closed.");
-    process.exit(0);
 });
