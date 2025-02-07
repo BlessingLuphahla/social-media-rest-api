@@ -1,7 +1,7 @@
-const router = require("express").Router();
 const bcrypt = require("bcrypt");
 
 const User = require("../models/User");
+const router = require("express").Router();
 // update user
 
 router.put("/:id", async (req, res) => {
@@ -147,6 +147,26 @@ router.put("/:id/unfollow", async (req, res) => {
     }
   } else {
     res.status(403).json("you cant unfollow yourself");
+  }
+});
+
+// Search users by username (case-insensitive, partial match)
+router.get("/search", async (req, res) => {
+  try {
+    const query = req.query.username;
+    if (!query) {
+      return res.status(400).json({ message: "Search query is required" });
+    }
+
+    // Find users whose usernames match the query (case-insensitive)
+    const users = await User.find({
+      username: { $regex: query, $options: "i" },
+    }).select("username profilePic");
+
+    res.json(users);
+  } catch (err) {
+    console.error("Search error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
