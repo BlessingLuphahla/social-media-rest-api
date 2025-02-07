@@ -64,6 +64,33 @@ router.get("/", async (req, res) => {
   }
 });
 
+// get friends
+
+router.get("/friends/:userId", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    const friends = await Promise.all(
+      user.followings.map((friendId) => {
+        return User.findById(friendId);
+      })
+    );
+
+    let friendList = [];
+
+    friends.forEach((friend) => {
+      friendList.push({
+        _id: friend._id,
+        username: friend.username,
+        profilePic: friend.profilePic,
+      });
+    });
+
+    res.status(200).json(friendList);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 //delete a user
 
 router.delete("/:id", async (req, res) => {
