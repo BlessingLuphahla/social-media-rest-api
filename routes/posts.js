@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const Post = require("../models/Post");
 const User = require("../models/User");
+const fs = require("fs");
+
 
 // create a post
 
@@ -32,12 +34,39 @@ router.put("/:id", async (req, res) => {
 
 // delete a post
 
+// router.delete("/:id", async (req, res) => {
+//   try {
+//     await Post.findByIdAndDelete(req.params.id);
+//     res.status(200).json("Post has been deleted");
+//   } catch (err) {
+//     res.status(500).json(err);
+//   }
+// });
+
 router.delete("/:id", async (req, res) => {
   try {
+    // Find the post by ID
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json("Post not found");
+    }
+
+    // If the post has an image, delete it from the server
+    if (post.img) {
+      const imagePath = path.join(__dirname, "../public/assets/images/person/", post.img);
+      
+      // Check if file exists before deleting
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath); // Delete the file
+      }
+    }
+
+    // Delete post from the database
     await Post.findByIdAndDelete(req.params.id);
-    res.status(200).json("Post has been deleted");
-  } catch (err) {
-    res.status(500).json(err);
+    res.status(200).json("Post deleted successfully");
+
+  } catch (error) {
+    res.status(500).json("Error deleting post: " + error);
   }
 });
 
