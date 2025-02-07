@@ -49,7 +49,7 @@ app.use(morgan("common"));
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "public/assets/images/person/"); // Ensure "uploads" folder exists
+    cb(null, "public/assets/images/person/");
   },
   filename: (req, file, cb) => {
     const safeFileName = req.body.name || `${Date.now()}-${file.originalname}`;
