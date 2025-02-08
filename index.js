@@ -21,7 +21,12 @@ const app = express();
 
 
 // Allow all domains (or restrict to specific domains as needed)
-app.use(cors());
+app.use(cors({
+  origin: [
+    "https://social-media-bay-three.vercel.app",
+    "https://social-media-jypf.onrender.com"
+  ]
+}));
 
 // Serve static files (images, CSS, JS) from the 'public' folder
 app.use('/public', express.static( 'public'));
