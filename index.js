@@ -20,11 +20,15 @@ const PORT = process.env.PORT;
 const app = express();
 
 
-// Allow all domains (or restrict to specific domains as needed)
+// app.use(cors({
+//   origin: "*"
+// }));
+
 app.use(cors({
   origin: [
     "https://social-media-bay-three.vercel.app",
-    "https://social-media-jypf.onrender.com"
+    "https://social-media-jypf.onrender.com",
+    "http://localhost:3204",
   ]
 }));
 
