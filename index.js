@@ -1,47 +1,46 @@
-const express = require("express");
 const mongoose = require("mongoose");
+
 const dotenv = require("dotenv");
 const helmet = require("helmet");
+
+const express = require("express");
 const morgan = require("morgan");
+const cors = require("cors");
+const multer = require("multer");
+
 const UserRouter = require("./routes/users");
 const AuthRouter = require("./routes/auth");
 const PostRouter = require("./routes/posts");
-const cors = require("cors");
-const path = require("path");
-const multer = require("multer");
-
+const ConversationRouter = require("./routes/conversations");
+const MessagesRouter = require("./routes/messages");
 
 dotenv.config();
 
-
-
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3204;
 
 const app = express();
 
-
-// app.use(cors({
-//   origin: "*"
-// }));
-
-app.use(cors({
-  origin: [
-    "https://social-media-bay-three.vercel.app",
-    "https://social-media-jypf.onrender.com",
-    "http://localhost:3204",
-  ]
-}));
+app.use(
+  cors({
+    origin: [
+      "https://social-media-bay-three.vercel.app",
+      "https://social-media-jypf.onrender.com",
+      "http://localhost:3204",
+    ],
+  })
+);
 
 // Serve static files (images, CSS, JS) from the 'public' folder
-app.use('/public', express.static( 'public'));
+app.use("/public", express.static("public"));
 
-mongoose.connect(process.env.MONGO_URL, {
-},
-).then(() => {
-    console.log('Connected to MongoDB');
-}).catch((err) => {
-    console.error('Error connecting to MongoDB:', err);
-});
+mongoose
+  .connect(process.env.MONGO_URL, {})
+  .then(() => {
+    console.log("Connected to MongoDB");
+  })
+  .catch((err) => {
+    console.error("Error connecting to MongoDB:", err);
+  });
 
 mongoose.connection.on("disconnected", () => {
   console.log("MongoDB disconnected!");
@@ -66,7 +65,6 @@ const storage = multer.diskStorage({
   },
 });
 
-
 const upload = multer({ storage: storage });
 app.post("/api/upload", upload.single("file"), (req, res) => {
   try {
@@ -74,13 +72,15 @@ app.post("/api/upload", upload.single("file"), (req, res) => {
   } catch (err) {
     console.error(err);
   }
-})
+});
 
 // setting up APIs
 
 app.use("/api/users", UserRouter);
 app.use("/api/auth", AuthRouter);
 app.use("/api/posts", PostRouter);
+app.use("/api/conversations", ConversationRouter);
+app.use("/api/messages", MessagesRouter);
 
 app.listen(PORT, () => {
   console.log("Server is running on port " + PORT);
