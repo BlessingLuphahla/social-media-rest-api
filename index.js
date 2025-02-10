@@ -12,7 +12,7 @@ const UserRouter = require("./routes/users");
 const AuthRouter = require("./routes/auth");
 const PostRouter = require("./routes/posts");
 const ConversationRouter = require("./routes/conversations");
-const MessagesRouter = require("./routes/messages");
+const MessageRouter = require("./routes/messages");
 
 dotenv.config();
 
@@ -80,7 +80,7 @@ app.use("/api/users", UserRouter);
 app.use("/api/auth", AuthRouter);
 app.use("/api/posts", PostRouter);
 app.use("/api/conversations", ConversationRouter);
-app.use("/api/messages", MessagesRouter);
+app.use("/api/messages", MessageRouter);
 
 app.listen(PORT, () => {
   console.log("Server is running on port " + PORT);
