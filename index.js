@@ -14,6 +14,9 @@ const PostRouter = require("./routes/posts");
 const ConversationRouter = require("./routes/conversations");
 const MessageRouter = require("./routes/messages");
 
+const { createServer } = require("http");
+const { initializeSocket } = require("./socket");
+
 dotenv.config();
 
 const PORT = process.env.PORT || 3204;
@@ -82,9 +85,18 @@ app.use("/api/posts", PostRouter);
 app.use("/api/conversations", ConversationRouter);
 app.use("/api/messages", MessageRouter);
 
-app.listen(PORT, () => {
+
+// Initialize Socket.io
+const server = createServer(app);
+
+initializeSocket(server);
+
+
+// Start the socket server
+server.listen(PORT, () => {
   console.log("Server is running on port " + PORT);
 });
+
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
