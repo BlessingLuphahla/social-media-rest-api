@@ -13,16 +13,33 @@ const initializeSocket = (server) => {
     },
   });
 
-  io.on("connection", (socket) => {
-    console.log("A user connected:", socket.id);
+  let users = [];
 
-    socket.on("sendMessage", ({ senderId, receiverId, text }) => {
-      console.log(`Message from ${senderId} to ${receiverId}: ${text}`);
-      io.emit("receiveMessage", { senderId, receiverId, text });
+  const addUser = (userId, socketId) => {
+    !users.some((user) => user.userId == userId) &&
+      users.push({
+        userId,
+        socketId,
+      });
+  };
+
+  const removeUser = (socketId) => {
+    users = users.filter((user) => user.socketId !== socketId);
+  };
+
+  io.on("connection", (socket) => {
+    console.log("user connected: " + socket.id);
+
+    const socketId = socket.id;
+
+    socket.on("sendUser", (userId) => {
+      addUser(userId, socketId);
+      io.emit("getUsers", users);
     });
 
-    socket.on("disconnect", () => {
-      console.log("A user disconnected:", socket.id);
+    socket.on("disconnect", (socket) => {
+      console.log(" a user has disconnected");
+      removeUser(socket.id);
     });
   });
 
