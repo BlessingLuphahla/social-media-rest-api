@@ -41,9 +41,12 @@ const initializeSocket = (server) => {
       io.emit("getUsers", users);
     });
 
-    socket.on("sendMessage", ({ userId, receiverId, text }) => {
-      const user = getUser(userId);
-      io.to(user.socketId).emit("getMessage")
+    socket.on("sendMessage", ({ senderId, receiverId, text }) => {
+      const receiver = getUser(receiverId);
+      io.to(receiver.socketId).emit("getMessage", {
+        senderId,
+        text,
+      });
     });
 
     socket.on("disconnect", (socket) => {
