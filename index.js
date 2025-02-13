@@ -1,7 +1,6 @@
 const dotenv = require("dotenv");
 dotenv.config();
 
-
 const mongoose = require("mongoose");
 const helmet = require("helmet");
 const express = require("express");
@@ -12,9 +11,7 @@ const path = require("path");
 const { createServer } = require("http");
 const { initializeSocket } = require("./socket");
 
-
 const cloudinary = require("./cloudinary");
-
 
 const UserRouter = require("./routes/users");
 const AuthRouter = require("./routes/auth");
@@ -91,7 +88,6 @@ const upload = multer({
 app.post("/upload", upload.single("file"), async (req, res) => {
   try {
     const file = req.file; // The file will be available in req.file
-    console.log("File received:", file);
 
     if (!file) {
       return res.status(400).json({ error: "No file uploaded" });
@@ -105,8 +101,6 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       folder: "images",
       resource_type: "auto",
     });
-
-    console.log("Cloudinary result:", result);
 
     // Return the secure URL of the uploaded image
     return res.status(200).json({ url: result.secure_url });
