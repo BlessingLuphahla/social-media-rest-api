@@ -40,7 +40,7 @@ const initializeSocket = (server) => {
       addUser(userId, socketId);
       io.emit("getUsers", users);
     });
-
+    
     socket.on("sendMessage", ({ senderId, receiverId, text }) => {
       const receiver = getUser(receiverId);
       io.to(receiver.socketId).emit("getMessage", {
@@ -48,10 +48,11 @@ const initializeSocket = (server) => {
         text,
       });
     });
-
+    
     socket.on("disconnect", (socket) => {
       console.log(" a user has disconnected");
       removeUser(socket.id);
+      io.emit("getUsers", users);
     });
   });
 
