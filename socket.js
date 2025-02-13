@@ -16,41 +16,34 @@ const initializeSocket = (server) => {
   let users = [];
 
   const addUser = (userId, socketId) => {
-    !users.some((user) => user.userId == userId) &&
-      users.push({
-        userId,
-        socketId,
-      });
+    if (!users.some((user) => user.userId === userId)) {
+      users.push({ userId, socketId });
+    }
   };
 
   const removeUser = (socketId) => {
     users = users.filter((user) => user.socketId !== socketId);
   };
 
-  const getUser = (userId) => {
-    return users.find((user) => userId === user.userId);
-  };
+  const getUser = (userId) => users.find((user) => user.userId === userId);
 
   io.on("connection", (socket) => {
-    console.log("user connected: " + socket.id);
-
-    const socketId = socket.id;
+    console.log("User connected: " + socket.id);
 
     socket.on("sendUser", (userId) => {
-      addUser(userId, socketId);
+      addUser(userId, socket.id);
       io.emit("getUsers", users);
     });
-    
+
     socket.on("sendMessage", ({ senderId, receiverId, text }) => {
       const receiver = getUser(receiverId);
-      io.to(receiver.socketId).emit("getMessage", {
-        senderId,
-        text,
-      });
+      if (receiver) {
+        io.to(receiver.socketId).emit("getMessage", { senderId, text });
+      }
     });
-    
-    socket.on("disconnect", (socket) => {
-      console.log(" a user has disconnected");
+
+    socket.on("disconnect", () => {
+      console.log("User disconnected: " + socket.id);
       removeUser(socket.id);
       io.emit("getUsers", users);
     });
