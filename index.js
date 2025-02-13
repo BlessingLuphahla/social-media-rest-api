@@ -81,7 +81,7 @@ app.get("/", (req, res) => {
 // Multer configuration for file uploads
 const upload = multer({
   storage: multer.memoryStorage(), // Store files in memory
-  limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
+  limits: { fileSize: 20 * 1024 * 1024 }, // Limit file size to 10MB
 });
 
 // Middleware to parse form-data (needed for handling file uploads)
