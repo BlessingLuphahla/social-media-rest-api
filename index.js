@@ -1,23 +1,26 @@
-const mongoose = require("mongoose");
-
 const dotenv = require("dotenv");
-const helmet = require("helmet");
+dotenv.config();
 
+
+const mongoose = require("mongoose");
+const helmet = require("helmet");
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const multer = require("multer");
+const path = require("path");
+const { createServer } = require("http");
+const { initializeSocket } = require("./socket");
+
+
+const cloudinary = require("./cloudinary");
+
 
 const UserRouter = require("./routes/users");
 const AuthRouter = require("./routes/auth");
 const PostRouter = require("./routes/posts");
 const ConversationRouter = require("./routes/conversations");
 const MessageRouter = require("./routes/messages");
-
-const { createServer } = require("http");
-const { initializeSocket } = require("./socket");
-
-dotenv.config();
 
 const PORT = process.env.PORT || 3204;
 
@@ -53,51 +56,62 @@ mongoose.connection.on("connected", () => {
   console.log("MongoDB connected!");
 });
 
-// middleweares
+// Middlewares
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("common"));
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/assets/images/person/");
-  },
-  filename: (req, file, cb) => {
-    const safeFileName = req.body.name || `${Date.now()}-${file.originalname}`;
-    cb(null, safeFileName);
-  },
-});
-
-const upload = multer({ storage: storage });
-app.post("/api/upload", upload.single("file"), (req, res) => {
-  try {
-    return res.status(200).json({ fileName: req.file.filename });
-  } catch (err) {
-    console.error(err);
-  }
-});
-
-// setting up APIs
-
+// Setting up APIs
 app.use("/api/users", UserRouter);
 app.use("/api/auth", AuthRouter);
 app.use("/api/posts", PostRouter);
 app.use("/api/conversations", ConversationRouter);
 app.use("/api/messages", MessageRouter);
 
-
 // Initialize Socket.io
 const server = createServer(app);
-
 initializeSocket(server);
-
 
 // Start the socket server
 server.listen(PORT, () => {
   console.log("Server is running on port " + PORT);
 });
 
-
 app.get("/", (req, res) => {
   res.send("Hello World!");
+});
+
+// Multer configuration for file uploads
+const upload = multer({
+  storage: multer.memoryStorage(), // Store files in memory
+  limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
+});
+
+// Middleware to parse form-data (needed for handling file uploads)
+app.post("/upload", upload.single("file"), async (req, res) => {
+  try {
+    const file = req.file; // The file will be available in req.file
+    console.log("File received:", file);
+
+    if (!file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+ // Convert the file buffer to a data URI
+ const dataUri = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+
+    // Upload the file to Cloudinary
+    const result = await cloudinary.uploader.upload(dataUri, {
+      folder: "images",
+      resource_type: "auto",
+    });
+
+    console.log("Cloudinary result:", result);
+
+    // Return the secure URL of the uploaded image
+    return res.status(200).json({ url: result.secure_url });
+  } catch (err) {
+    console.error("Upload failed:", err);
+    res.status(500).json({ error: "Upload failed", details: err.message });
+  }
 });
