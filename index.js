@@ -30,6 +30,9 @@ app.use(
       "https://social-media-jypf.onrender.com",
       "http://localhost:3204",
     ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // Allow cookies and authentication headers
   })
 );
 
@@ -57,6 +60,14 @@ mongoose.connection.on("connected", () => {
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("common"));
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.sendStatus(200);
+});
+
 
 // Setting up APIs
 app.use("/api/users", UserRouter);
