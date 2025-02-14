@@ -19,7 +19,7 @@ const PostRouter = require("./routes/posts");
 const ConversationRouter = require("./routes/conversations");
 const MessageRouter = require("./routes/messages");
 
-const PORT = process.env.PORT || 3204;
+const PORT = process.env.PORT || 3000;
 
 const app = express();
 
@@ -70,7 +70,7 @@ const server = createServer(app);
 initializeSocket(server);
 
 // Start the socket server
-server.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log("Server is running on port " + PORT);
 });
 
@@ -93,8 +93,10 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       return res.status(400).json({ error: "No file uploaded" });
     }
 
- // Convert the file buffer to a data URI
- const dataUri = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+    // Convert the file buffer to a data URI
+    const dataUri = `data:${file.mimetype};base64,${file.buffer.toString(
+      "base64"
+    )}`;
 
     // Upload the file to Cloudinary
     const result = await cloudinary.uploader.upload(dataUri, {
