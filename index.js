@@ -28,7 +28,7 @@ app.use(
     origin: [
       "https://social-media-bay-three.vercel.app",
       "https://social-media-jypf.onrender.com",
-      "http://localhost:3204",
+      "http://localhost:3206",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -68,7 +68,6 @@ app.options("*", (req, res) => {
   res.sendStatus(200);
 });
 
-
 // Setting up APIs
 app.use("/api/users", UserRouter);
 app.use("/api/auth", AuthRouter);
@@ -86,7 +85,9 @@ server.listen(PORT, "0.0.0.0", () => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send(
+    "Wassup i am Redd Axe \n This is an API the UI logic is implimented seperated"
+  );
 });
 
 // Multer configuration for file uploads
