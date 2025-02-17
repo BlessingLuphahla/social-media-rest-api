@@ -28,7 +28,7 @@ app.use(
     origin: [
       "https://social-media-bay-three.vercel.app",
       "https://social-media-jypf.onrender.com",
-      "http://localhost:3206",
+      process.env.LOCAL_REACT_URL,
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
