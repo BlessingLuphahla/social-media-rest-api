@@ -51,11 +51,11 @@ module.exports = router;
 router.post("/login", async (req, res) => {
   try {
     if (!req.body.email || !req.body.password) {
-      return res.status(400).json("Email and password are required");
+      return res.json("Email and password are required");
     }
 
     const user = await User.findOne({ email: req.body.email });
-    if (!user) return res.status(401).json("Invalid credentials");
+    if (!user) return res.json("Invalid credentials");
 
     const validPassword = await bcrypt.compare(
       req.body.password,
