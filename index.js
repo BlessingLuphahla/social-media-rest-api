@@ -99,24 +99,21 @@ const upload = multer({
 // Middleware to parse form-data (needed for handling file uploads)
 app.post("/upload", upload.single("file"), async (req, res) => {
   try {
-    const file = req.file; // The file will be available in req.file
+    const file = req.file;
 
     if (!file) {
       return res.status(400).json({ error: "No file uploaded" });
     }
 
-    // Convert the file buffer to a data URI
     const dataUri = `data:${file.mimetype};base64,${file.buffer.toString(
       "base64"
     )}`;
 
-    // Upload the file to Cloudinary
     const result = await cloudinary.uploader.upload(dataUri, {
       folder: "images",
       resource_type: "auto",
     });
 
-    // Return the secure URL of the uploaded image
     return res.status(200).json({ url: result.secure_url });
   } catch (err) {
     console.error("Upload failed:", err);
