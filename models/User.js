@@ -46,14 +46,16 @@ const UserSchema = new mongoose.Schema(
     city: {
       type: String,
       max: 50,
+      default: "Unknown",
     },
     from: {
       type: String,
       max: 50,
+      default: "Unknown",
     },
     relationship: {
       type: String,
-      default: "Single",
+      default: "Unknown",
     },
     posts: {
       type: Array,
