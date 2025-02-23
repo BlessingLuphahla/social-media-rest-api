@@ -11,18 +11,20 @@ const path = require("path");
 const { createServer } = require("http");
 const { initializeSocket } = require("./socket");
 
-const cloudinary = require("./cloudinary");
+const cloudinary = require("./cloudinary"); // Ensure this is correctly set up
 
 const UserRouter = require("./routes/users");
 const AuthRouter = require("./routes/auth");
 const PostRouter = require("./routes/posts");
 const ConversationRouter = require("./routes/conversations");
 const MessageRouter = require("./routes/messages");
+const User = require("./models/User");
 
 const PORT = process.env.PORT || 3000;
 
 const app = express();
 
+// CORS configuration
 app.use(
   cors({
     origin: [
@@ -39,6 +41,7 @@ app.use(
 // Serve static files (images, CSS, JS) from the 'public' folder
 app.use("/public", express.static("public"));
 
+// MongoDB connection
 mongoose
   .connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
@@ -66,7 +69,7 @@ app.use(morgan("common"));
 app.options("*", (req, res) => {
   res.header("Access-Control-Allow-Origin", req.headers.origin);
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Headers", "Content-Type", "Authorization");
   res.header("Access-Control-Allow-Credentials", "true");
   res.sendStatus(200);
 });
@@ -96,10 +99,71 @@ app.get("/", (req, res) => {
 // Multer configuration for file uploads
 const upload = multer({
   storage: multer.memoryStorage(), // Store files in memory
-  limits: { fileSize: 20 * 1024 * 1024 }, // Limit file size to 10MB
+  limits: { fileSize: 20 * 1024 * 1024 }, // Limit file size to 20MB
 });
 
-// Middleware to parse form-data (needed for handling file uploads)
+// Function to handle file uploads to Cloudinary
+const handleFileUpload = async (file) => {
+  if (!file) return null;
+
+  const dataUri = `data:${file.mimetype};base64,${file.buffer.toString(
+    "base64"
+  )}`;
+
+  const result = await cloudinary.uploader.upload(dataUri, {
+    folder: "profile-images", // Folder in Cloudinary
+    resource_type: "auto",
+  });
+
+  return result.secure_url;
+};
+
+// // Endpoint to update profile picture or cover photo
+// app.put(
+//   "/update-images/:userId",
+//   upload.fields([
+//     { name: "profilePic", maxCount: 1 },
+//     { name: "coverPic", maxCount: 1 },
+//   ]),
+//   async (req, res) => {
+//     try {
+//       const { userId } = req.params;
+//       const { profilePic, coverPic } = req.files;
+
+//       // Find the user
+//       const user = await User.findById(userId);
+//       if (!user) {
+//         return res.status(404).json({ error: "User not found" });
+//       }
+
+//       // Upload and update profile picture if provided
+//       if (profilePic) {
+//         user.profilePic = await handleFileUpload(profilePic[0]);
+//       }
+
+//       // Upload and update cover photo if provided
+//       if (coverPic) {
+//         user.coverPic = await handleFileUpload(coverPic[0]);
+//       }
+
+//       // Save the updated user
+//       await user.save();
+
+//       res.status(200).json({
+//         message: "Images updated successfully",
+//         profilePic: user.profilePic,
+//         coverPic: user.coverPic,
+//       });
+//     } catch (err) {
+//       console.error("Error updating images:", err);
+//       res
+//         .status(500)
+//         .json({ error: "Failed to update images", details: err.message });
+//     }
+//   }
+// );
+
+// Middleware to handle file uploads (single file)
 app.post("/upload", upload.single("file"), async (req, res) => {
   try {
     const file = req.file;
